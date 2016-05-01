@@ -1,0 +1,168 @@
+void setup(){
+  for(int i=4;i<15;i++){
+  pinMode(i, OUTPUT);
+  }
+for(int i=22;i<29;i+=2){
+    pinMode(i, INPUT_PULLUP);
+  }
+  for(int i=30;i<37;i+=2){
+    pinMode(i, OUTPUT);
+  }
+  
+}
+int real=0;
+int number [4][4] = { 
+  {
+    15,14,13,12    }
+  ,
+  {
+    11,3,6,9    }
+  ,
+  {
+    10,2,5,8    }
+  ,
+  { 
+    0,1,4,7    }
+
+};
+
+
+void digital(char a){
+  digitalWrite(4,0);
+    digitalWrite(5,0);
+   digitalWrite(6,1);
+  for(int i=7;i<15;i++){
+  digitalWrite(i,a>>(i-7) & 0x01);
+}
+  digitalWrite(6,0);
+}
+
+
+void initiallcd(){
+digital(0x3c); 
+
+digital(0x02);
+delay(10);
+digital(0x01);
+
+digital(0x0e);
+
+   
+}
+
+void writelcd(char j){
+  
+  
+ digitalWrite(4,1);
+  digitalWrite(5,0);
+   digitalWrite(6,1);
+  for(int i=7;i<15;i++)
+  digitalWrite(i,j>>(i-7) &0x01 );
+
+   digitalWrite(6,0);
+}
+
+
+
+
+void loop() {
+  
+int count;
+char  Table1[] = "1.Hello World";
+char  Table4[] = "Hello World";
+char  Table2[] = "2.zzz";
+char  Table3[] = "3.guessnumber";
+round2:
+   initiallcd();
+delay(10);
+for(int i=0;i<sizeof(Table1)/sizeof(char)-1;i++)
+writelcd(Table1[i]);
+
+digital(0xc0);
+for(int i=0;i<sizeof(Table2)/sizeof(char)-1;i++)
+writelcd(Table2[i]);
+
+for(int i=30;i<37;i+=2){
+    digitalWrite(i, HIGH);
+  }
+  round1:
+  int down = 0;
+  int right = 0;
+
+
+  while (down<4){
+    int d=2*down;
+    int e;
+
+    digitalWrite(d+30, LOW);
+    right=0;
+
+    while(right<4){
+      e=2*right;
+      //   int b = digitalRead(d+30);
+      // Serial.print(digitalRead(e+22));
+
+      int c = digitalRead(e+22);
+
+      if (c==LOW ){
+        do {delay(1);
+        c = digitalRead(e+22);}
+        while(c==0);
+
+        real = number[down][right];
+        switch (real){
+         case 1:
+                        initiallcd();
+                        delay(100);
+                        for(int i=0;i<sizeof(Table4)/sizeof(char)-1;i++)
+                        writelcd(Table4[i]);                        
+                     
+                        break;
+                        
+          case 4:
+                        if(count%2==1){
+                        initiallcd();
+                        delay(10);
+                        for(int i=0;i<sizeof(Table1)/sizeof(char)-1;i++)
+                        writelcd(Table1[i]);
+
+                        digital(0xc0);
+                        for(int i=0;i<sizeof(Table2)/sizeof(char)-1;i++)
+                        writelcd(Table2[i]);
+                        count++;
+                        }
+                        
+                        else
+                        {
+                        initiallcd();
+                        delay(100);
+                        for(int i=0;i<sizeof(Table3)/sizeof(char)-1;i++)
+                        writelcd(Table3[i]);                        
+                        count++;
+                        }
+                         break;                
+        case 11:
+                      goto round2;
+            
+         
+          default:
+                   
+                   break;
+        
+         }
+delay(50);
+
+      }
+      right++;
+
+    }
+    digitalWrite(d+30, HIGH);
+    down++;
+
+
+  }
+
+
+goto round1;
+ 
+}

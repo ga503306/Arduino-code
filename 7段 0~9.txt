@@ -1,0 +1,64 @@
+void setup() {
+  // initialize digital pin 13 as an output.
+for(int i=2;i<10;i++){
+  pinMode(i, OUTPUT);
+
+
+}
+pinMode(10, INPUT);
+  
+
+
+}
+
+
+int lastclick=0;
+int l=0;
+
+// the loop function runs over and over again forever
+void loop() {
+ int a[10][8]={
+              {0,0,0,1,1,0,0,1},
+              {0,0,0,0,0,0,0,1},
+              {0,0,0,1,1,0,1,1},
+              {0,1,0,0,0,0,0,1},
+              {0,1,0,0,1,0,0,1},
+              {1,0,0,1,1,0,0,1},
+              {0,0,0,0,1,1,0,1},
+              {0,0,1,0,0,1,0,1},
+              {1,0,0,1,1,1,1,1},
+              {0,0,0,0,0,0,1,1}
+ };
+
+
+/////////////
+int b = digitalRead(10);
+
+
+if(b==1 && lastclick ==0){
+delay(100);
+  int var=2;
+for(int i=0;i<8;i++){
+  
+digitalWrite(var,a[l][i]);
+var++;
+}
+ delay(50);
+ lastclick = b;
+ l++;
+ 
+}
+
+
+if(b==0){
+lastclick = 0;
+}
+
+if (l == 10){
+l=0;}
+
+
+}
+
+  
+  

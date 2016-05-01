@@ -1,0 +1,261 @@
+/*
+Áä½L ¤pºâ½L a+b-c*dÂk0e=
+ */ 
+
+
+
+// the setup function runs once when you press reset or power the board
+void setup() {
+  Serial.begin(9600);
+  // initialize digital pin 13 as an output.
+  for(int i=2;i<13;i++){
+    pinMode(i, OUTPUT);
+  }
+  for(int i=22;i<29;i+=2){
+    pinMode(i, INPUT_PULLUP);
+  }
+  for(int i=30;i<37;i+=2){
+    pinMode(i, OUTPUT);
+  }
+
+}
+
+
+int a[16][13]={
+  {
+    1,1,1,0,0,1,1    }
+  ,
+  {
+    1,1,1,0,0,1,1    }
+  ,
+  {
+    1,1,1,0,0,1,1    }
+  ,
+  {
+    1,1,1,0,0,1,1    }
+  ,
+  {
+    1,1,1,0,0,1,1    }
+  ,
+  {
+    1,1,1,0,0,1,1    }
+  ,//A
+  {
+    1,1,1,0,0,1,1    }
+  ,//9
+  {
+    1,1,1,1,1,1,1    }
+  ,
+  {
+    1,1,1,0,0,1,0    }
+  ,
+  {
+    1,0,1,1,1,1,1    }
+  ,
+  {
+    1,0,1,1,0,1,1    }
+  ,
+  {
+    0,1,1,0,0,1,1    }
+  ,
+  {
+    1,1,1,1,0,0,1    }
+  ,
+  {
+    1,1,0,1,1,0,1    }
+  ,
+  {
+    0,1,1,0,0,0,0    }
+  ,
+  {
+    1,1,1,1,1,1,0    }//0
+};
+
+
+int number [4][4] = { 
+  {
+    15,14,13,12    }
+  ,
+  {
+    11,3,6,9    }
+  ,
+  {
+    10,2,5,8    }
+  ,
+  { 
+    0,1,4,7    }
+
+};
+
+
+int real=0;
+int number1 =0;
+int number2 =0;
+int number3 =0;
+int number4 =0;
+int ans = 0;
+int plusa1=0,plusa2=0,plusa3=0,plusa4=0 ;
+int plusaall =0,plusball=0,plusans;
+int tobe;
+
+void catchvalue(){
+                           plusa4=number4;
+                           plusa3=number3;
+                           plusa2=number2;
+                           plusa1=number1;
+                           plusaall=plusa4*1000+plusa3*100+plusa2*10+plusa1;
+         
+                           number4=0;
+                           number3=0;
+                           number2=0;
+                           number1=0;
+
+}
+
+void led(int whichnumber ,int whichled ){
+
+  for(int j =9 ; j <13 ; j++){
+    digitalWrite(j, HIGH);
+  }
+
+  digitalWrite(whichled,LOW);
+  int var=2;
+  for(int i=0;i<7;i++){
+
+    digitalWrite(var,a[15-whichnumber][i]);
+    var++;
+  }
+  delay(5);
+  digitalWrite(whichled,HIGH);
+
+}
+
+
+
+  
+void loop() {
+  int lastclick=0 ; 
+
+
+
+
+  for(int i=30;i<37;i+=2){
+    digitalWrite(i, HIGH);
+  }
+
+
+
+  led(number1,12);
+  led(number2,11);
+  led(number3,10);
+  led(number4,9);
+
+  /* int var=2;
+   for(int i=0;i<8;i++){
+   digitalWrite(var,a[15-real][i]);
+   var++;
+   
+   }*/
+
+
+
+  int down = 0;
+  int right = 0;
+
+
+  while (down<4){
+    int d=2*down;
+    int e;
+
+    digitalWrite(d+30, LOW);
+    right=0;
+
+    while(right<4){
+      e=2*right;
+      //   int b = digitalRead(d+30);
+      // Serial.print(digitalRead(e+22));
+
+      int c = digitalRead(e+22);
+
+      if (c==LOW ){
+        do {delay(1);
+        c = digitalRead(e+22);}
+        while(c==0);
+
+
+        real = number[down][right];
+         switch (real){
+         case 10:
+                          
+                           catchvalue();
+                           tobe=0;
+                   
+         break;
+         case 11:
+                            catchvalue();
+         
+                            tobe=1;
+                   
+          break;
+          case 12:
+                           catchvalue();
+         
+                            tobe=2;
+                   
+          break;     
+          case 13:
+          
+                   plusball=number4*1000+number3*100+number2*10+number1;
+              if (tobe==0)
+                   plusans=plusball+plusaall;                   
+              if (tobe==1)
+                   plusans=plusaall-plusball;
+              if (tobe==2)
+                   plusans=plusaall * plusball;
+                   number4 = plusans/1000;
+                   number3 = (plusans%1000)/100;
+                   number2 = (plusans%1000%100)/10;
+                   number1 = (plusans%1000%100%10);
+                   
+         
+                   
+               
+                   break;
+           case 15:
+                           
+                           plusaall=0;
+                           plusball=0;      
+                           number4=0;
+                           number3=0;
+                           number2=0;
+                           number1=0;
+                       break;       
+         
+          default:
+                   number4=number3;
+                   number3=number2;
+                   number2=number1;
+                   number1=real;
+                   break;
+        
+         }
+delay(50);
+
+      }
+      right++;
+
+    }
+    digitalWrite(d+30, HIGH);
+    down++;
+
+
+  }
+  Serial.println();
+  //delay(30);
+
+
+
+
+
+
+}

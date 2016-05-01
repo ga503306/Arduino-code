@@ -1,0 +1,191 @@
+/*
+Áä½L ¥ª¨ì¥k¿é¤J
+ */
+
+
+
+// the setup function runs once when you press reset or power the board
+void setup() {
+  Serial.begin(9600);
+  // initialize digital pin 13 as an output.
+  for(int i=2;i<13;i++){
+    pinMode(i, OUTPUT);
+  }
+  for(int i=22;i<29;i+=2){
+    pinMode(i, INPUT_PULLUP);
+  }
+  for(int i=30;i<37;i+=2){
+    pinMode(i, OUTPUT);
+  }
+
+}
+
+
+int a[16][13]={
+  {
+    1,1,1,0,0,1,1    }
+  ,
+  {
+    1,1,1,0,0,1,1    }
+  ,
+  {
+    1,1,1,0,0,1,1    }
+  ,
+  {
+    1,1,1,0,0,1,1    }
+  ,
+  {
+    1,1,1,0,0,1,1    }
+  ,
+  {
+    1,1,1,0,0,1,1    }
+  ,//A
+  {
+    1,1,1,0,0,1,1    }
+  ,//9
+  {
+    1,1,1,1,1,1,1    }
+  ,
+  {
+    1,1,1,0,0,1,0    }
+  ,
+  {
+    1,0,1,1,1,1,1    }
+  ,
+  {
+    1,0,1,1,0,1,1    }
+  ,
+  {
+    0,1,1,0,0,1,1    }
+  ,
+  {
+    1,1,1,1,0,0,1    }
+  ,
+  {
+    1,1,0,1,1,0,1    }
+  ,
+  {
+    0,1,1,0,0,0,0    }
+  ,
+  {
+    1,1,1,1,1,1,0    }//0
+};
+
+
+int number [4][4] = { 
+  {
+    15,14,13,12    }
+  ,
+  {
+    11,3,6,9    }
+  ,
+  {
+    10,2,5,8    }
+  ,
+  { 
+    0,1,4,7    }
+
+};
+
+
+int real=0;
+int number1 =0;
+int number2 =0;
+int number3 =0;
+int number4 =0;
+
+
+void led(int whichnumber ,int whichled ){
+
+  for(int j =9 ; j <13 ; j++){
+    digitalWrite(j, HIGH);
+  }
+
+  digitalWrite(whichled,LOW);
+  int var=2;
+  for(int i=0;i<7;i++){
+
+    digitalWrite(var,a[15-whichnumber][i]);
+    var++;
+  }
+  delay(5);
+  digitalWrite(whichled,HIGH);
+
+}
+
+
+
+
+void loop() {
+  int lastclick=0 ; 
+
+
+
+  for(int i=30;i<37;i+=2){
+    digitalWrite(i, HIGH);
+  }
+
+
+
+  led(number1,12);
+  led(number2,11);
+  led(number3,10);
+  led(number4,9);
+
+  /* int var=2;
+   for(int i=0;i<8;i++){
+   digitalWrite(var,a[15-real][i]);
+   var++;
+   
+   }*/
+
+
+
+  int down = 0;
+  int right = 0;
+
+
+  while (down<4){
+    int d=2*down;
+    int e;
+
+    digitalWrite(d+30, LOW);
+    right=0;
+
+    while(right<4){
+      e=2*right;
+      //   int b = digitalRead(d+30);
+      // Serial.print(digitalRead(e+22));
+
+      int c = digitalRead(e+22);
+
+      if (c==LOW ){
+        do {delay(1);
+        c = digitalRead(e+22);}
+        while(c==0);
+
+        real = number[down][right];
+        number4=number3;
+        number3=number2;
+        number2=number1;
+        number1=real;
+delay(50);
+
+      }
+      right++;
+
+    }
+    digitalWrite(d+30, HIGH);
+    down++;
+
+
+  }
+  Serial.println();
+  //delay(30);
+
+
+
+
+
+
+}

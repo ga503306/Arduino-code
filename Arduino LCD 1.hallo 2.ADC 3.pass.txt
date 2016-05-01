@@ -1,0 +1,242 @@
+void setup()
+{ 
+	for(int i=4;i<=14;i++)
+		pinMode(i,OUTPUT);      
+	for(int i=31; i<=37; i+=2)  
+		pinMode(i,INPUT_PULLUP);
+	for(int i=39; i<=45; i+=2)  
+		pinMode(i,OUTPUT);
+}
+
+int math[4][4]={
+ {0,0,0,0},
+ {0,3,6,9},
+ {0,2,5,8},
+ {0,1,4,7} 
+};
+
+void digitalw(char a){
+
+	digitalWrite(4,0);
+	digitalWrite(5,0);
+	digitalWrite(6,1);
+	for(int i=7;i<=14;i++)
+		digitalWrite(i,a>>(i-7)&0x01);
+	digitalWrite(6,0);
+	checkbusy();
+}
+
+void dataw(char i){
+	digitalWrite(4,1);
+	digitalWrite(5,0);
+	digitalWrite(6,1);
+	for(int j=7;j<=14;j++)
+		digitalWrite(j,i>>(j-7)&0x01 );
+	digitalWrite(6,0); 
+	checkbusy(); 
+}
+
+void checkbusy(){
+
+	byte b = 1 ;
+	while(b & 1){
+		digitalWrite(4,0); 
+		digitalWrite(5,1);  
+		digitalWrite(6,1); 
+
+		pinMode(14,INPUT);      
+		b=digitalRead(14);  
+		digitalWrite(6,0); 
+
+		delay(1);
+	}
+
+	pinMode(14,OUTPUT);
+}
+
+void InitialLCD(){
+	digitalw(0x3c);
+	digitalw(0x02);
+	digitalw(0x01);
+	digitalw(0x0e); 
+}
+
+void Ws(int count,char* str){
+
+	for(int i=0;i<count;i++){
+          if(str[i]=='\0')
+            break;
+		dataw(str[i]);
+  }
+}
+
+void first(){ 
+	char h[]="1.Hello world";
+	char a[]="2.ADC Disp";
+
+	Ws(sizeof(h)/sizeof(char)-1,h) ;
+	digitalw(0xc0);
+	Ws(sizeof(a)/sizeof(char)-1,a) ;  
+}
+
+void adc(){
+  double disp;
+  double displ;
+  int a ; 
+  double b;
+  char v[2];
+  char vl[4]={0};
+  for(int i=0;i<99;i++){
+     InitialLCD();
+  disp=analogRead(A7);
+  itoa(5*(disp/1023.0),v,10);
+
+
+
+  a=5*(disp/1023.0);
+  b=5*(disp/1023);
+  displ=(b-a)*1000;
+  itoa(displ,vl,10);
+  Ws(sizeof(v)/sizeof(char)-1,v) ;
+  Ws(1,".") ;
+  Ws(sizeof(vl)/sizeof(char)-1,vl) ;
+  
+   delay(1000);
+  }
+}
+
+void guesspass(){
+        InitialLCD();
+	int ans=0,guess;
+	int Max=9;
+	int Min=0;
+        int cl=0;
+
+
+	char w[]="  Guess number";
+	char overrange[]="overrange";
+	char boom[]="Boom";
+	char Maxc[2];
+	char Minc[2];
+        
+
+	ans=5;
+
+        Ws(sizeof(w)/sizeof(char)-1,w) ;
+        delay(1000);
+	do{
+  
+		for(int i=0;i<4;i++){
+			digitalWrite(39+2*i,LOW);
+			for(int j=0;j<4;j++){
+				if(digitalRead(31+2*j)==0 ){
+                                  guess=math[i][j];
+                                  cl++;
+                          }
+			} 
+			digitalWrite(39+2*i,HIGH);
+		}   
+
+          if(cl==1){
+              InitialLCD();
+		if(guess>Max || guess<Min){
+                        itoa(Max,Maxc,10);
+			itoa(Min,Minc,10);
+                        Ws(sizeof(Minc)/sizeof(char)-1,Minc) ; 	 	
+			Ws(2," ~") ; 
+			Ws(sizeof(Maxc)/sizeof(char)-1,Maxc) ;
+                        Ws(sizeof(w)/sizeof(char)-1,w) ;	
+                        digitalw(0xc0);
+			Ws(sizeof(overrange)/sizeof(char)-1,overrange) ;
+                       
+                        cl=0;
+			continue;
+		}
+
+		if(guess==ans){                   
+                      for(int i=0;i!=3;i++){                       
+			Ws(sizeof(boom)/sizeof(char)-1,boom) ;
+                        Ws(1," ") ; 
+                        delay(500);
+                      }
+}
+	
+		else if(guess>ans){
+			Max=guess;
+			itoa(Max,Maxc,10);
+			itoa(Min,Minc,10);
+                        Ws(sizeof(Minc)/sizeof(char)-1,Minc) ; 	 	
+			Ws(2," ~") ; 
+			Ws(sizeof(Maxc)/sizeof(char)-1,Maxc) ;
+                        Ws(sizeof(w)/sizeof(char)-1,w) ;	
+			cl=0;
+		}
+		else{
+			Min=guess;
+			itoa(Max,Maxc,10);
+			itoa(Min,Minc,10);
+			Ws(sizeof(Minc)/sizeof(char)-1,Minc) ;	
+			Ws(2," ~") ; 
+			Ws(sizeof(Maxc)/sizeof(char)-1,Maxc) ;
+                        Ws(sizeof(w)/sizeof(char)-1,w) ;
+			cl=0;
+		}
+          }
+	}
+        				
+	while(guess!=ans);
+    
+
+}
+
+void loop()
+{
+
+        
+        int fc=0;
+	char n[]="3.guess number";
+	char f[]="welcome LCD";
+
+	
+		InitialLCD();
+		first();
+	
+
+      do{
+	for(int i=0;i<4;i++){
+		digitalWrite(39+2*i,LOW);
+		for(int j=0;j<4;j++){
+			if(digitalRead(31+2*j)==0 ){
+
+				if(i==3 && j==1){         //　1   進入選單 1 
+					InitialLCD();
+					Ws(sizeof(f)/sizeof(char)-1,f) ; 
+
+				}
+				if(i==0 && j==1){       //    E  　翻頁
+					InitialLCD();
+					Ws(sizeof(n)/sizeof(char)-1,n) ; 
+                                       				
+				}
+				if(i==2 && j==0)      //    A    　回首頁
+					fc=2;  
+				
+
+                                if(i==2 && j==1)
+                                  adc();
+
+                                if(i==1 && j==1){
+                                  guesspass();
+                                  fc=2;  	
+                                }
+                                  
+                                
+
+			}
+		} 
+		digitalWrite(39+2*i,HIGH);
+	}        
+}
+	while(fc!=2);
+
+}
